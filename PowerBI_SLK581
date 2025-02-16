@@ -1,0 +1,34 @@
+import pandas as pd
+
+# Load PowerBI data to Python
+
+df = dataset
+
+
+required_columns = ['FamilyName', 'GivenName', 'DateOfBirth', 'Sex']
+missing_columns = [col for col in required_columns if col not in df.columns]
+if missing_columns:
+    raise ValueError(f"lacking of these rows: {', '.join(missing_columns)}")
+
+
+def generate_slk581(row):
+    family_name = row['FamilyName'].upper() if pd.notnull(row['FamilyName']) else ''
+    family_key = ''.join([c for c in family_name if c.isalpha()])[:3]
+    family_key = family_key.ljust(3, '2')
+    
+    given_name = row['GivenName'].upper() if pd.notnull(row['GivenName']) else ''
+    given_key = ''.join([c for c in given_name if c.isalpha()])[:2]
+    given_key = given_key.ljust(2, '2')
+    
+    dob = pd.to_datetime(row['DateOfBirth'], errors='coerce')
+    dob_key = dob.strftime('%Y%m%d') if pd.notnull(dob) else '00000000'
+    
+    sex = str(row['Sex']).strip() if pd.notnull(row['Sex']) else ''
+    sex_key = '1' if sex == '1' else '2' if sex == '2' else '3' if sex == '3' else '9'
+    
+    return f"{family_key}{given_key}{dob_key}{sex_key}"
+
+df['SLK581'] = df.apply(generate_slk581, axis=1)
+
+# Output for Power BI
+result = df
