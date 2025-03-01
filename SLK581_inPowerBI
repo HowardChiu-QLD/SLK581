@@ -1,0 +1,20 @@
+SLK581 = 
+    VAR FamilyName = 
+        UPPER([LastName]) -- 確保姓氏為大寫
+    VAR GivenName = 
+        UPPER([FirstName]) -- 確保名字為大寫
+    VAR FamilyNameCode = 
+        VAR CleanFamilyName = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(FamilyName, "-", ""), "'", ""), " ", "") -- 移除非字母字符
+        VAR SecondLetter = MID(CleanFamilyName, 2, 1)
+        VAR ThirdLetter = MID(CleanFamilyName, 3, 1)
+        VAR FifthLetter = IF(LEN(CleanFamilyName) >= 5, MID(CleanFamilyName, 5, 1), "2")
+        RETURN SecondLetter & ThirdLetter & FifthLetter
+    VAR GivenNameCode = 
+        VAR CleanGivenName = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(GivenName, "-", ""), "'", ""), " ", "") -- 移除非字母字符
+        VAR SecondLetter = MID(CleanGivenName, 2, 1)
+        VAR ThirdLetter = IF(LEN(CleanGivenName) >= 3, MID(CleanGivenName, 3, 1), "2")
+        RETURN SecondLetter & ThirdLetter
+    VAR BirthDateCode = FORMAT([BirthDate], "ddMMyyyy") -- 格式化出生日期
+    VAR SexCode = 
+        IF([Gender] = "Male", "1", IF([Gender] = "Female", "2", "9")) -- 性別編碼
+    RETURN FamilyNameCode & GivenNameCode & BirthDateCode & SexCode
